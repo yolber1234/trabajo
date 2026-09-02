@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Bodega</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f7f6; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📦 Panel de Control - Inventario de Bodega</h1>
+    <p>Vista general para el control de mercancía.</p>
+
+    <h2>Productos Registrados</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+        </tr>
+        </thead>
+        <tbody id="tabla-productos">
+        <tr><td colspan="4" style="text-align: center;">Cargando inventario...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Como el HTML se sirve desde el mismo Spring Boot, la ruta relativa funciona directo en Render
+    const API_URL = '/api/productos'; // Ajusta la ruta si tu controlador usa otro mapeo
+
+    fetch(API_URL)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('tabla-productos');
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay productos registrados.</td></tr>';
+                return;
+            }
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                        <td>${item.id || ''}</td>
+                        <td>${item.nombre || ''}</td>
+                        <td>${item.cantidad || ''}</td>
+                        <td>$${item.precio || ''}</td>
+                    `;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar:', error);
+            document.getElementById('tabla-productos').innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error al conectar con la API.</td></tr>';
+        });
+</script>
+</body>
+</html>
